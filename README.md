@@ -19,3 +19,7 @@ where r and p are the location and momentum of the particles. The set of all pos
 ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/5d6c3edd68a8d09e67bd377bd8906d144e1a911f)
 
 where the "force" term corresponds to the forces exerted on the particles by an external influence (not by the particles themselves), the "diff" term represents the diffusion of particles, and "coll" is the collision term – accounting for the forces acting between particles in collisions. If we assume that F(r, t) is a force field acting on the particles, and m is the mass of the particles, the the final statement of BTE would be:
+
+![](https://wikimedia.org/api/rest_v1/media/math/render/svg/fdf75926860831e97d1bd746278c82554fc10640)
+
+The collision less BTE, where individual collisions are replaced with long-range aggregated interactions, e.g. Coulomb interactions, is often called the Vlasov equation. The final statement of BTE is more useful than the principal one above, but it is still incomplete, since f cannot be solved unless the collision term in f is known. This term cannot be found as easily or generally as the others – it is a statistical term representing the particle collisions, and requires knowledge of the statistics the particles obey, like the Maxwell–Boltzmann, Fermi–Dirac or Bose–Einstein distributions. At time t = 0, we will switch of all external forces of the system. By scattering the system reaches the thermodynamic equilibrium state again, which will be described in linear approximation by:
