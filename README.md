@@ -6,4 +6,4 @@ All aspects of any electronic semiconductor device relies on the dynamics of car
 
 ![first equation](https://latex.codecogs.com/gif.latex?%5Cdpi%7B200%7D%20j%20%3D%20n%5Cmu%20E%20-%20D%5Cfrac%7B%5Cpartial%20n%7D%7B%5Cpartial%20x%7D)
 
-where n is the carrier concentration, &#968 is the carrier mobility, E is the applied electric field,  
+where n is the carrier concentration, μ is the carrier mobility, E is the applied electric field,  
