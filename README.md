@@ -3,5 +3,3 @@ Writting C/C++ and Python code in order to simulate the IV curve of a PN diode b
 
 ## Drift Diffusion Model: Derivation
 All aspects of any electronic semiconductor device relies on the dynamics of carriers in semicondutors. Many models depending on the type and scale of a device have been presented to describe carrier transport. One of the simplest and most widely used models is so called Drift-Diffusion (DD) model. According to the DD model, in a one-dimensional system, the current is given by: 
-
-Checking!
