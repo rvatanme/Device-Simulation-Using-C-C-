@@ -8,4 +8,4 @@ The code takes 2.155 s to complete the job. During running, several text files a
 The generated files are as follows:
 
 1) "els_plot.txt"     --->     Contains the Potential (V), Electric Field (V/cm), Electron Densities (1/cm^3), Hole Densities (1/cm^3), Total Charge Density (C/cm^3),	Conduction Band Energy (eV) vs x (um) at the equilibrium when no external potential is applied on the diode. The graphs plotted by libreoffice have been provided in the current folder. 
-2) 
+2) "quasi.txt" ---> contains the conduction, valence and interinsic band energy (eV) and quasi Fermi level (eV) vs x (um) at the applied voltage of 0.625 V.
