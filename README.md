@@ -30,7 +30,7 @@ The f<sub>0</sub>(r , k) is the distribution function at the equilibrium. The re
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cfrac%7BeE%7D%7Bm%5E*%7D%5Cfrac%7B%5Cpartial%20f%7D%7B%5Cpartial%20%5Cnu%7D%20&plus;%20%5Cnu%5Cfrac%7B%5Cpartial%20f%7D%7B%5Cpartial%20x%7D%20%3D%20%5Cfrac%7Bf_0-f%28%5Cnu%2Cx%29%7D%7B%5Ctau%7D) (7)
 
-Where the integral on the right hand side represents the first 'moment' of the distribution function. After multiplying both sides by ν and integrating over ν, from the RHS of the equation we get:
+Here, m<sup>*</sup> is the effective mass of the given carrier. The integral on the right hand side represents the first 'moment' of the distribution function. After multiplying both sides by ν and integrating over ν, from the RHS of the equation we get:
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cfrac%7B1%7D%7B%5Ctau%7D%5B%5Cint%20%5Cnu%20f_0d%5Cnu%20-%20%5Cint%20%5Cnu%20f%28%5Cnu%2Cx%29d%5Cnu%5D%20%3D%20-%5Cfrac%7BJ%28x%29%7D%7Be%5Ctau%7D) (8)
 
