@@ -60,5 +60,39 @@ where the carrier mobility, diffusion and average squared velocity are given by:
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20D%20%3D%20%5Cmu%20k_BT)
 
+Using thermal equilibrium velocity in driving the DD current equations means that the DD model is only valid for small perturbations of the equilibrium state that holds at low electric fields. The validity of the DD equations is empirically extended by introducing field-dependent mobility μ(E) and diffusion coefficient D(E), obtained from empirical models or detailed calculation to capture effects such as velocity saturation at high electric fields due to hot carrier effects. 
+
+
+## Numerical Solution Based on DD Model
+In a complete numerical solution algorithm based on DD model to simulate a semiconductor device, the following set of equations are employed in one-dimension:
+
+1) DD Current Equations
+
+![](https://wikimedia.org/api/rest_v1/media/math/render/svg/762996309ccc3ec7dfe1148bbafd8205759801fd)
+
+![](https://wikimedia.org/api/rest_v1/media/math/render/svg/81b2f3c90844ea1845c110af143a86ff0d9f3d19)
+
+2) Continuity Equations
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cfrac%7B%5Cpartial%20n%7D%7B%5Cpartial%20t%7D%20%3D%20%5Cfrac%7B1%7D%7Bq%7D%5Cfrac%7BdJ_n%7D%7Bdx%7D&plus;U_n)
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cfrac%7B%5Cpartial%20p%7D%7B%5Cpartial%20t%7D%20%3D%20%5Cfrac%7B1%7D%7Bq%7D%5Cfrac%7BdJ_p%7D%7Bdx%7D&plus;U_p)
+
+3) Poisson Equation
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cepsilon%20%5Cfrac%7Bd%5E2V%7D%7Bdx%5E2%7D%20%3D%20-%28p-n&plus;N_%7BD%7D%5E%7B&plus;%7D-N_%7BA%7D%5E%7B-%7D%29)
+
+
+where U<sub>n</sub> and U<sub>p</sub> are the net generation-recombination rates for electrons and holes, respectively and V is the voltage at x. Using difference finite element method, the former equations are discretized in order to be numerically solved.However, there are some limitations on the choice of mesh size and time step: 1. The mesh size must be smaller than the Debye Length 2. The time step must be smaller than the dielectric relaxation time.
+
+A simple example of Debye length effect is the redistribution of carries at an interface between two regions with different doping concentrations. Carriers diffuse into the lower doped region creating excess carrier distribution which at equilibrium decays in space down to the bulk concentration with exponential behavior. The spatial decay constant is the Debye length. 
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20L_D%3D%5Csqrt%7B%5Cfrac%7B%5Cepsilon%20k_BT%7D%7Bq%5E2N%7D%7D)
+
+In GaAs and Si, at room temperature the Debye length is approximately 400 Å when N ≈ 1E-16 /cm<sup>3</sup> and decreases to about only 50 Å when N ≈ 1E-18 /cm<sup>3</sup>. 
+
+The dielectric relaxation time is the characteristic time for charge fluctuations to decay under the influence of the field that they produce. The dielectric relaxation time may be estimated using:
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20t_%7Bdr%7D%3D%5Cfrac%7B%5Cepsilon%7D%7BqN%5Cmu%7D)
 
 
