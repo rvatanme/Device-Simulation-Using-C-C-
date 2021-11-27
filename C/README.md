@@ -12,3 +12,4 @@ The generated files are as follows:
 3) "pote.txt"  ---> contains potential profile (V) vs position (um) at the applied voltage of 0.625 V.
 4) "elec.txt"  ---> contains electric field profile (MV/cm) vs position (um) at the applied voltage of 0.625 V.
 5) "car_dens.txt"  ---> contains electron and hole densities (/cm3) vs position (um) at the applied voltage of 0.625 V.
+6) ""
