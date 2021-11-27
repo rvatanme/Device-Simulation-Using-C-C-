@@ -4,7 +4,7 @@ Writting C/C++ and Python code in order to simulate the IV curve of a PN diode b
 ## Drift Diffusion Model: Derivation
 All aspects of any electronic semiconductor device relies on the dynamics of carriers in semicondutors. Many models depending on the type and scale of the device have been presented to describe carrier transport. One of the simplest and most widely used models is so called Drift-Diffusion (DD) model. According to the DD model, in a one-dimensional system, the electron current is given by: 
 
-![first equation](https://wikimedia.org/api/rest_v1/media/math/render/svg/762996309ccc3ec7dfe1148bbafd8205759801fd) (1)
+![](https://wikimedia.org/api/rest_v1/media/math/render/svg/762996309ccc3ec7dfe1148bbafd8205759801fd) (1)
 
 where e, n, μ<sub>e</sub>, E and D<sub>e</sub> are electron charge, electron concentration, electron mobility, applied electric field and electron diffusion coefficient at x, respectively. The hole current is given by a similar equation.
 
@@ -36,10 +36,29 @@ Where the integral on the right hand side represents the first 'moment' of the d
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20J%28x%29%20%3D%20e%20%5Cint%20%5Cnu%20f%28%5Cnu%2Cx%29d%5Cnu)
 
-The distribution function is symmetric at equilibrium in ν, and hence the first integral in equaution 8 is zero. Therefore by considering LHS of equation 7, we have:
+The distribution function is symmetric at equilibrium in ν, and hence the first integral in equaution 8 is zero. By considering LHS of equation 7, we have:
 
-![](https://latex.codecogs.com/svg.latex?%5Clarge%20J%28x%29%20%3D%20-e%20%5Cfrac%7Be%5Ctau%7D%7Bm%5E*%7DE%5Cint%20%5Cnu%20%5Cfrac%7B%5Cpartial%20f%7D%7B%5Cpartial%20%5Cnu%7D%20d%5Cnu%20-e%5Ctau%20%5Cfrac%7Bd%7D%7Bdx%7D%20%5Cint%20%7B%5Cnu%7D%5E2%20f%28%5Cnu%2Cx%29%20d%5Cnu)
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20J%28x%29%20%3D%20-e%20%5Cfrac%7Be%5Ctau%7D%7Bm%5E*%7DE%5Cint%20%5Cnu%20%5Cfrac%7B%5Cpartial%20f%7D%7B%5Cpartial%20%5Cnu%7D%20d%5Cnu%20-e%5Ctau%20%5Cfrac%7Bd%7D%7Bdx%7D%20%5Cint%20%7B%5Cnu%7D%5E2%20f%28%5Cnu%2Cx%29%20d%5Cnu) (9)
+
+By plugging the following equations in the equation 9
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cint%20%5Cnu%20%5Cfrac%7B%5Cpartial%20f%7D%7B%5Cpartial%20%5Cnu%7D%20d%5Cnu%20%3D%20%5B%5Cnu%20f%28%5Cnu%2Cx%29%5D_%7B-%5Cinfty%7D%5E%7B%5Cinfty%7D-%5Cint%20f%28%5Cnu%2Cx%29d%5Cnu%20%3D%20-n%28x%29)
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cint%20%7B%5Cnu%7D%5E2f%28%5Cnu%2Cx%29d%5Cnu%20%3D%20n%28x%29%3C%7B%5Cnu%7D%5E2%3E)
+
+we get the DD current equation as presented in the beginning of the discussion: 
+
+![](https://wikimedia.org/api/rest_v1/media/math/render/svg/762996309ccc3ec7dfe1148bbafd8205759801fd)
+
+![](https://wikimedia.org/api/rest_v1/media/math/render/svg/81b2f3c90844ea1845c110af143a86ff0d9f3d19)
+
+where the carrier mobility, diffusion and average squared velocity are given by:
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cmu%20%3D%20%5Cfrac%7Be%5Ctau%7D%7Bm*%7D)
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20%3C%7B%5Cnu%7D%5E2%3E%20%3D%20%5Cfrac%7Bk_BT%7D%7Bm%5E*%7D)
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20D%20%3D%20%5Cmu%20k_BT)
+
 
 
