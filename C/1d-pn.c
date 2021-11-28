@@ -18,7 +18,7 @@ double BER(double x) {
         temp_term = 1;
         sum = temp_term;
         i = 0.0;
-        while (flag_sum = 0) {
+        while (flag_sum == 0) {
             i += 1;
             temp_term = temp_term*x/(i+1);
             if (abs1(temp_term) < 1.0e-14) flag_sum = 1;
