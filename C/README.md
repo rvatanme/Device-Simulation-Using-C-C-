@@ -3,7 +3,7 @@ Here the code written in C has been provided to simulate the IV curve of a one-d
 
 The code has been devided to several parts and the comments are added to the code where ever the explanation is needed.
 
-The code takes 2.155 s to complete the job. During running, several text files are produced that contains related physical quantities of the simulated 1d PN diode that can be plotted by any desire plotting software. 
+The code takes 2.0 s to complete the job. During running, several text files are produced that contains related physical quantities of the simulated 1d PN diode that can be plotted by any desire plotting software. 
 
 The generated files are as follows:
 
