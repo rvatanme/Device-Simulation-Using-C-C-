@@ -13,4 +13,4 @@ The generated files are as follows:
 4) "elec.txt"  ---> contains electric field profile (MV/cm) vs position (um) at the applied voltage of 0.625 V.
 5) "car_dens.txt"  ---> contains electron and hole densities (/cm3) vs position (um) at the applied voltage of 0.625 V.
 6) "curr_tot_ele_hol.txt"  ---> contains Total Current Density (Amp/cm^2)	Electron Current Density (Amp/cm^2)	Hole Current Density (Amp/cm^2) vs Applied Voltage (V) at the applied voltage of 0.625 V.
-7) 
+7) "curr_pos.txt"  ---> contains Total Current Density (Amp/cm^2) vs position (um) at the applied voltage of 0.625 V.
