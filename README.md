@@ -117,7 +117,11 @@ The veriety of method for solving Poisson equation include: (1) Direct methods a
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LU_M.png)
 
-where the L matrix can be calculated by:
+where the L and U matrix are given by:
+
+![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LU.png)
+
+The solution then would be as follows:
 
 ![]()
 
