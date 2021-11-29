@@ -64,24 +64,24 @@ Using thermal equilibrium velocity in driving the DD current equations means tha
 
 
 ## Numerical Solution Based on DD Model
-In a complete numerical solution algorithm based on DD model to simulate a semiconductor device, the following set of equations are employed in one-dimension:
+In a complete numerical solution algorithm based on DD model to simulate a semiconductor device, the following set of equations should be solved in a one-dimensional system:
 
-1) DD Current Equations
+
+1) Poisson Equation
+
+![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cepsilon%20%5Cfrac%7Bd%5E2V%7D%7Bdx%5E2%7D%20%3D%20-%28p-n&plus;N_%7BD%7D%5E%7B&plus;%7D-N_%7BA%7D%5E%7B-%7D%29)
+
+2) DD Current Equations
 
 ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/762996309ccc3ec7dfe1148bbafd8205759801fd)
 
 ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/81b2f3c90844ea1845c110af143a86ff0d9f3d19)
 
-2) Continuity Equations
+3) Continuity Equations
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cfrac%7B%5Cpartial%20n%7D%7B%5Cpartial%20t%7D%20%3D%20%5Cfrac%7B1%7D%7Bq%7D%5Cfrac%7BdJ_n%7D%7Bdx%7D&plus;U_n)
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cfrac%7B%5Cpartial%20p%7D%7B%5Cpartial%20t%7D%20%3D%20%5Cfrac%7B1%7D%7Bq%7D%5Cfrac%7BdJ_p%7D%7Bdx%7D&plus;U_p)
-
-3) Poisson Equation
-
-![](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Cepsilon%20%5Cfrac%7Bd%5E2V%7D%7Bdx%5E2%7D%20%3D%20-%28p-n&plus;N_%7BD%7D%5E%7B&plus;%7D-N_%7BA%7D%5E%7B-%7D%29)
-
 
 where U<sub>n</sub> and U<sub>p</sub> are the net generation-recombination rates for electrons and holes, respectively and V is the voltage at x. Using difference finite element method, the former equations are discretized in order to be numerically solved.However, there are some limitations on the choice of mesh size and time step: 1. The mesh size must be smaller than the Debye Length 2. The time step must be smaller than the dielectric relaxation time.
 
@@ -94,5 +94,9 @@ In GaAs and Si, at room temperature the Debye length is approximately 400 Å whe
 The dielectric relaxation time is the characteristic time for charge fluctuations to decay under the influence of the field that they produce. The dielectric relaxation time may be estimated using:
 
 ![](https://latex.codecogs.com/svg.latex?%5Clarge%20t_%7Bdr%7D%3D%5Cfrac%7B%5Cepsilon%7D%7BqN%5Cmu%7D)
+
+In order to numerically solve the set of mentioned Poisson, DD current and continuity equations, each of them should be discretized first. The Poisson equation can be discritized by finit difference element as following (assuming φ<sup>new</sup> = φ<sup>old</sup>+δ):
+
+![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5Cfrac%7B1%7D%7Bdx%5E2%7D%5Cphi_%7Bi&plus;1%7D%5E%7Bn&plus;1%7D&plus;%28%5Cfrac%7B2%7D%7Bdx%5E2%7D&plus;n_i&plus;p_i%29%5Cphi_i%5E%7Bn&plus;1%7D&plus;%5Cfrac%7B1%7D%7Bdx%5E2%7D%5Cphi_%7Bi-1%7D%5E%7Bn&plus;1%7D%3D-%28p_i-n_i&plus;N_d-N_a%29-%28p_i&plus;n_i%29%5Cphi_i%5En)
 
 The two popular methods for solving the discretized equations are the Gummel's iteration method and the Newton's method. It is common practice to perform the actual calculation using normalized units to make the algorithms more efficient, and in cases to avoid numerical overflow and underflow. It is advisable to input the data in M.K.S. or practical units (the use of centimeters is for instance very common in semiconductor practice, instead of meters) and then provide a conversion block before and after the computation blocks to normalize and denormalize the variables.
