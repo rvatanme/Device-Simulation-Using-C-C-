@@ -125,6 +125,6 @@ The solution then would be as follows:
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LY.png)
 
-![]()
+![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/Uu.png)
 
 The two popular methods for solving the discretized equations are the Gummel's iteration method and the Newton's method. It is common practice to perform the actual calculation using normalized units to make the algorithms more efficient, and in cases to avoid numerical overflow and underflow. It is advisable to input the data in M.K.S. or practical units (the use of centimeters is for instance very common in semiconductor practice, instead of meters) and then provide a conversion block before and after the computation blocks to normalize and denormalize the variables.
