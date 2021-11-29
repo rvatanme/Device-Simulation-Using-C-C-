@@ -99,4 +99,8 @@ In order to numerically solve the set of mentioned Poisson, DD current and conti
 
 ![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5Cfrac%7B1%7D%7Bdx%5E2%7D%5Cphi_%7Bi&plus;1%7D%5E%7Bn&plus;1%7D&plus;%28%5Cfrac%7B2%7D%7Bdx%5E2%7D&plus;n_i&plus;p_i%29%5Cphi_i%5E%7Bn&plus;1%7D&plus;%5Cfrac%7B1%7D%7Bdx%5E2%7D%5Cphi_%7Bi-1%7D%5E%7Bn&plus;1%7D%3D-%28p_i-n_i&plus;N_d-N_a%29-%28p_i&plus;n_i%29%5Cphi_i%5En)
 
+where φ<sub>i</sub><sup>n</sup> is the potential of ith node of the discritized device in the nth iteration. The n<sub>i</sub> and p<sub>i</sub> are given by:
+
+![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20n_i%20%3D%20exp%28%5Cphi_i%29%2C%20%5C%3B%5C%3B%5C%3B%5C%3B%20p_i%20%3D%20exp%28-%5Cphi_i%29)
+
 The two popular methods for solving the discretized equations are the Gummel's iteration method and the Newton's method. It is common practice to perform the actual calculation using normalized units to make the algorithms more efficient, and in cases to avoid numerical overflow and underflow. It is advisable to input the data in M.K.S. or practical units (the use of centimeters is for instance very common in semiconductor practice, instead of meters) and then provide a conversion block before and after the computation blocks to normalize and denormalize the variables.
