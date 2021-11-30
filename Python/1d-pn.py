@@ -79,11 +79,11 @@ dx = dx/Ldi                # Renormalize lengths with Ldi
 dop = [0]*n_max
 for i in range(n_max):
     if i <= n_max/2:
-        dop[i] = -Na/ni
+        dop[i] = -Na/ni         # P-side from 0 to x_max/2
     else:
-        dop[i] = Nd/ni 
+        dop[i] = Nd/ni          # N-side from x_max/2 to x_max
         
- # Initialize the potential based on the requirement of charge neutrality throughout the whole structure
+ # Initialize the normalized potential based on the requirement of charge neutrality throughout the whole structure
 fi = [0]*n_max
 n = [0]*n_max
 p = [0]*n_max
@@ -92,10 +92,10 @@ for i in range(n_max):
     if zz > 0:
         xx = zz*(1 + math.sqrt(1+1/(zz*zz)))
     if zz <  0:
-        xx = zz*(1 - math.sqrt(1+1/(zz*zz)))
-    fi[i] = math.log(xx)
-    n[i] = xx
-    p[i] = 1/xx
+        xx = zz*(1 - math.sqrt(1+1/(zz*zz)))       # Taylor series of sqrt(1+x) = 1 + x/2
+    fi[i] = math.log(xx)                           # \phi = (kT/q)ln(Nd/ni)  or  \phi = (kT/q)ln(Na/ni) in kT/q unit
+    n[i] = xx                                      # n = Nd in N-side  and  n = ni*2/Na in P-side in ni unit
+    p[i] = 1/xx                                    # p = Na in P-side  and  n = ni*2/Nd in P-side in ni unit
 
 delta_acc = 1E-5               # Set the Tolerance
 
@@ -112,14 +112,14 @@ c = [0]*n_max
 b = [0]*n_max
 f = [0]*n_max
 dx2 = dx*dx
-for i in range(n_max):
+for i in range(n_max):      # Setup the coefficients of discritized Poisson equation 
     a[i] = 1/dx2
     c[i] = 1/dx2
     b[i] = -(2/dx2+math.exp(fi[i])+math.exp(-fi[i]))
     f[i] = math.exp(fi[i]) - math.exp(-fi[i]) - dop[i] - fi[i]*(math.exp(fi[i])+math.exp(-fi[i]))
 
 #(B) Define the elements of the coefficient matrix and initialize the forcing function at the ohmic contacts
-a[0] = 0
+a[0] = 0                      # Setup the Dirichlet boundary condition for the boundary nodes
 c[0] = 0
 b[0] = 1
 f[0] = fi[0]
@@ -136,19 +136,19 @@ beta = [0]*n_max
 v = [0]*n_max
 delta = [0]*n_max
 while flag_conv == 0:          
-    k_iter = k_iter + 1
+    k_iter = k_iter + 1                      #Count iteration cycles
     alpha[0] = b[0]
-    for i in range(1, n_max):
+    for i in range(1, n_max):                #Set up L and U matrix 
         beta[i]=a[i]/alpha[i-1]
         alpha[i]=b[i]-beta[i]*c[i-1]
     
     # Solution of Lv = f %    
     v[0] = f[0]
-    for i in range(1,n_max):
+    for i in range(1,n_max):                      # Calculate v array using L matrix and fi array from the previous cycle
         v[i] = f[i] - beta[i]*v[i-1]
     
     # Solution of U*fi = v %
-    temp = v[n_max - 1]/alpha[n_max - 1]
+    temp = v[n_max - 1]/alpha[n_max - 1]          # Calculate the new fi using U matrix and v array.
     delta[n_max - 1] = temp - fi[n_max - 1]
     fi[n_max - 1]=temp
     for i in range(n_max-1):       #delta
@@ -159,18 +159,20 @@ while flag_conv == 0:
     
     delta_max = 0
     
-    for i in range(n_max):
+    for i in range(n_max):                     # Finding the maximum element difference between new and old fi 
         xx = abs(delta[i])
         if xx > delta_max:
             delta_max=xx
             
     print (delta_max)
-    if(delta_max < delta_acc):
+    if(delta_max < delta_acc):                # Check if the maximum difference is less or greater than threshold 
         flag_conv = 1
     else:
-        for i in range(1,n_max-1):
+        for i in range(1,n_max-1):            # If difference is greater then the new b and f would be calculated and used in the new iter
             b[i] = -(2/dx2 + math.exp(fi[i]) + math.exp(-fi[i]));
             f[i] = math.exp(fi[i]) - math.exp(-fi[i]) - dop[i] - fi[i]*(math.exp(fi[i]) + math.exp(-fi[i]))
+
+# End of Poisson-Boltzmann solver
             
 # Printing out the results
 xx1 = [0]*n_max
@@ -179,8 +181,8 @@ ro = [0]*n_max
 el_field1 = [0]*n_max
 el_field2 = [0]*n_max
 xx1[i] = dx*1e4
-for i in range(1,n_max-1): 
-    Ec[i] = dEc - Vt*fi[i];     #Values from the second Node
+for i in range(1,n_max-1):       # Calculate electric field, charge carrier densities and conduction band profile based on calculated fi
+    Ec[i] = dEc - Vt*fi[i];    
     ro[i] = -ni*(math.exp(fi[i]) - math.exp(-fi[i]) - dop[i])
     el_field1[i] = -(fi[i+1] - fi[i])*Vt/(dx*Ldi)
     el_field2[i] = -(fi[i+1] - fi[i-1])*Vt/(2*dx*Ldi)
