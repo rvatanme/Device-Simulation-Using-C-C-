@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <fstream>
 
 using namespace std;
 
@@ -259,6 +260,16 @@ int main() {
         rnd->nf = (rnd->n)*ni;
         rnd->pf = (rnd->p)*ni;
     }
+    
+    // Dumping out the results
+    ofstream myfile;
+    myfile.open("els_plot_cpp.txt");
+    myfile << "x [um]\tPotential [V]\tElectric Field1 [V/cm]\tElectric Field2 [V/cm]\tElectron Densities [1/cm^3]\tHole Densities [1/cm^3]\tTotal Charge Density [C/cm^3]\tConduction Band Energy (eV)\n";
+    for (rnd = rnd0; rnd <= rnd1; rnd++) {
+         myfile << rnd->xx1 << "\t" << Vt*(rnd->fi) << "\t" << rnd->el_field1 << "\t" << rnd->el_field2 << "\t" << rnd->nf << "\t" << rnd->pf << "\t" << rnd->ro << "\t" << rnd->Ec << "\n";
+    }
+    myfile.close();    
+
     delete[] rnd0;
     delete[] Jnp0;
     return 0;
