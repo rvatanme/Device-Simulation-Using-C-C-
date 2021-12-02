@@ -63,7 +63,7 @@ where the carrier mobility, diffusion and average squared velocity are given by:
 Using thermal equilibrium velocity in driving the DD current equations means that the DD model is only valid for small perturbations of the equilibrium state that holds at low electric fields. The validity of the DD equations is empirically extended by introducing field-dependent mobility μ(E) and diffusion coefficient D(E), obtained from empirical models or detailed calculation to capture effects such as velocity saturation at high electric fields due to hot carrier effects. 
 
 
-## Numerical Solution Based on DD Model
+## Discretization of Equations used in DD Model
 In a complete numerical solution algorithm based on DD model to simulate a semiconductor device, the following set of equations should be solved in a one-dimensional system:
 
 
@@ -119,7 +119,8 @@ where the dependency of n and p upon the potential is buried under Bernoulli fun
 
 ![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20J_%7Bi&plus;1/2%7D%20%3D%20%5Cfrac%7BeD%20_%7Bi&plus;1/2%7D%7D%7Ba_i%7D%5Bn_%7Bi&plus;1%7DB%28%5Cfrac%7BV_%7Bi&plus;1%7D-V_i%7D%7BV_t%7D%29-n_iB%28%5Cfrac%7BV_i-V_%7Bi&plus;1%7D%7D%7BV_t%7D%29%5D)
 
-The veriety of method for solving former obtained finite element equations include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
+## Numerical Sulotion of Discretized Equations
+The result of the discretization using finite difference, is a system of algebraic equations, which are all linear AΦ=Q. The veriety of method for solving linear equations include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LU_M.png)
 
