@@ -115,7 +115,11 @@ where V<sub>i</sub> is the potential in the ith node. Since for n(V<sub>i</sub>)
 
 ![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20B%28x%29%3D%5Cfrac%7Bx%7D%7Be%5Ex&plus;1%7D%20%5C%3B%5C%3B%5C%3B%5C%3BBernoulli%5C%3BFunction)
 
-where the dependency of n and p upon the potential is buried under Bernoulli function. The veriety of method for solving Poisson equation include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
+where the dependency of n and p upon the potential is buried under Bernoulli function. Finaly, after the convergence, the electron current density from node (i) to (i+1) can be calculated by the following equation:
+
+![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20J_%7Bi&plus;1/2%7D%20%3D%20%5Cfrac%7BeD%20_%7Bi&plus;1/2%7D%7D%7Ba_i%7D%5Bn_%7Bi&plus;1%7DB%28%5Cfrac%7BV_%7Bi&plus;1%7D-V_i%7D%7BV_t%7D%29-n_iB%28%5Cfrac%7BV_i-V_%7Bi&plus;1%7D%7D%7BV_t%7D%29%5D)
+
+The veriety of method for solving Poisson equation include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LU_M.png)
 
