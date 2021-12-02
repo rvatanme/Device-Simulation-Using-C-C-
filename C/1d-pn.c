@@ -31,17 +31,17 @@ double BER(double x) {
 typedef struct rnode {
     double dop0;      //doping concentration in each grid point
     double fi;        //potential of each grid point
-    double n;         //electron concentration
-    double p;         //hole concentration
+    double n;         //electron concentration normalized with ni intrinsic electron concentration
+    double p;         //hole concentration normalized with ni
     double a, b, c, f, alpha, beta, v;  //coefficients of Poisson equation
-    double delta;
-    double xx1, Ei, Ec, Ev, ro, el_field1, el_field2;
-    double nf, pf;
-    double Ef, Efn, Efp;
-    double mup, mun;
-    double an, bn, cn, fn, ap, bp, cp, fp;
-    double alphan, betan, alphap, betap;
-    double vn, vp;
+    double delta;                       // Difference between elements of two matrixs
+    double xx1, Ei, Ec, Ev, ro, el_field1, el_field2;  // Position grid point, intr/cond/val band, char density, Elect field.
+    double nf, pf;    //electron and hole density
+    double Ef, Efn, Efp;   // Quasi electron and hole fermi level
+    double mup, mun;       // electron and hole mobility at each grid
+    double an, bn, cn, fn, ap, bp, cp, fp;   // coefficients of DD-continuity equation
+    double alphan, betan, alphap, betap;     // LU decomposition of current equations
+    double vn, vp;                           // electron and hole potential
 } Rnode;
 
 typedef struct cur {
@@ -61,14 +61,13 @@ int main() {
     double eps = 1.05E-12;         // This includes the eps  = 11.7 for Si [F/cm]
     double T = 300.0;              // [K]
     double ni = 1.5E10;           // Intrinsic carrier concentration [1/cm^3]
-    double Vt = kb*T/q;           // [eV]
+    double Vt = kb*T/q;           // Thermal Energy [eV] equals to 25 mV thermal voltage [V] 
     double RNc = 2.8E19;           // This is 2.8e20 in the FORTRAN file
     double TAUN0 = 0.1E-6;           // Electron SRH life time
     double TAUP0 = 0.1E-6;           // Hole SRH life time
     double mun0   = 1500.0;            // Electron Mobility in cm2/V-s
     double mup0   = 1000.0;             // Hole Mobility in cm2/V-s
     double dEc = Vt*log(RNc/ni);
-    //printf("q = %e\tkb = %e\teps = %e\tT = %f\tni = %e\tVt = %f\tRNc = %e\tTAUN0 = %e\tTAUP0 = %e\tmun0 =%f\tmunp0 =%f\tdEc = %f\n", q, kb, eps, T, ni, Vt, RNc, TAUN0, TAUP0, mun0, mup0, dEc);
 
 
     /* Define Doping Values */
@@ -77,31 +76,26 @@ int main() {
 
 
  /* Calculate relevant parameters for the simulation */
-    double Vbi = Vt*log(Na*Nd/(ni*ni));
-    double W   = sqrt(2*eps*(Na+Nd)*Vbi/(q*Na*Nd));     // [cm]
-    double Wn  = W*sqrt(Na/(Na+Nd));                    // [cm]
-    double Wp  = W*sqrt(Nd/(Na+Nd));                    // [cm]
-    double Wone = sqrt(2*eps*Vbi/(q*Na));               // [cm]
-    double E_p = q*Nd*Wn/eps;                           // [V/cm]
-    double Ldn = sqrt(eps*Vt/(q*Nd));
-    double Ldp = sqrt(eps*Vt/(q*Na));
-    double Ldi = sqrt(eps*Vt/(q*ni));
-    //printf("Vbi = %f\tW = %e\tWn = %e\tWp = %e\tWone = %e\tE_p = %e\tLdn = %e\tLdp = %e\tLdi = %e\n",Vbi,W,Wn,Wp,Wone,E_p,Ldn,Ldp,Ldi);
+    double Vbi = Vt*log(Na*Nd/(ni*ni));                 // Built-in Potential Energy [eV] at zero bias (open circuit)
+    double W   = sqrt(2*eps*(Na+Nd)*Vbi/(q*Na*Nd));     // Depletion width [cm]
+    double Wn  = W*sqrt(Na/(Na+Nd));                    // N-side depletion width [cm]
+    double Wp  = W*sqrt(Nd/(Na+Nd));                    // P-side depletion width [cm]
+    double E_p = q*Nd*Wn/eps;                           // Maximum electric field [V/cm] at the junction
+    double Ldn = sqrt(eps*Vt/(q*Nd));                   // Debye length for N-side 
+    double Ldp = sqrt(eps*Vt/(q*Na));                   // Debye length for P-side
+    double Ldi = sqrt(eps*Vt/(q*ni));                   // Debye Length for Intrisic Si
 
 
-    /* Calculate relevant parameters in an input file
-    % Write to a file
-    save input_params.txt Na Nd Vbi W Wn Wp E_p Ldn Ldp
-    %Material_Constants    %Define some material constants
-    % Setting the size of the simulation domain based
-    % on the analytical results for the width of the depletion regions for a simple pn-diode %*/
+
+    /* Setting the size of the simulated pn diode based on the analytical results from the width of the 
+       depletion regions for a simple pn-diode %*/
     double x_max = 0.0;
     if(x_max < Wn) x_max = Wn;
     if(x_max < Wp) x_max = Wp;
     x_max = 20*x_max;
 
 
-    /* Setting the grid size based on the extrinsic Debye lengths */
+    /* Setting the uniform grid size based (dx) on the extrinsic Debye lengths */
     double dx = Ldn;
     if(dx > Ldp) dx=Ldp;
     dx = dx/20;
@@ -110,7 +104,6 @@ int main() {
     /* Calculate the required number of grid points and renormalize dx */
     int n_max = x_max/dx +1;
     dx = dx/Ldi;    // Renormalize lengths with Ldi
-    //printf("n_max = %d\tx_max = %e\tdx = %e\n", n_max, x_max, dx);
 
 
     /* Set up the doping C(x)=Nd(x)-Na(x) that is normalized with ni */
@@ -121,9 +114,8 @@ int main() {
     Jnp0 = (Cur *)calloc(n_max, sizeof(Cur));
     Jnp1 = Jnp0 + n_max -1;
     for (rnd = rnd0; rnd <= rnd1; rnd++) {
-        if (rnd - rnd0 < n_max/2) rnd->dop0 = -Na/ni;
-        else rnd->dop0 = Nd/ni;
-        //if (rnd - rnd0 ==0 || rnd - rnd0 == 9653) printf("dop0 = %e\n", rnd->dop0);
+        if (rnd - rnd0 < n_max/2) rnd->dop0 = -Na/ni;  // P-side from 0 to x_max/2
+        else rnd->dop0 = Nd/ni;   // N-side from x_max/2 to x_max
     }
 
 
@@ -132,14 +124,10 @@ int main() {
     for (rnd = rnd0; rnd <= rnd1; rnd++) {
         zz = 0.5*(rnd->dop0);
         if (zz > 0.0) xx = zz*(1 + sqrt(1+1/(zz*zz)));
-        if (zz < 0.0) xx = zz*(1 - sqrt(1+1/(zz*zz)));
-        rnd->fi = log(xx);
-        rnd->n = xx;
-        rnd->p = 1/xx;
-        //if (rnd - rnd0 == 0) printf("dop0 = %e\tzz = %e\txx = %e\tfi = %f\tn = %e\tp =%e\n",
-                                    //rnd->dop0, zz, xx, rnd->fi, rnd->n, rnd->p);
-        //if (rnd - rnd0 == 9653) printf("dop0 = %e\tzz = %e\txx = %e\tfi = %f\tn = %e\tp =%e\n",
-                                       //rnd->dop0, zz, xx, rnd->fi, rnd->n, rnd->p);
+        if (zz < 0.0) xx = zz*(1 - sqrt(1+1/(zz*zz)));    // Taylor series: sqrt(1+x) = 1 + x/2
+        rnd->fi = log(xx);      // \phi = (kT/q)ln(Nd/ni)  or  \phi = (kT/q)ln(Na/ni) in kT/q unit
+        rnd->n = xx;            //  n = Nd in N-side  and  n = ni*2/Na in P-side in ni unit
+        rnd->p = 1/xx;          //  p = Na in P-side  and  n = ni*2/Nd in P-side in ni unit
     }
     delta_acc = 1.0E-5;               // Preset the Tolerance
 
@@ -153,19 +141,17 @@ int main() {
     %(A) Define the elements of the coefficient matrix for the internal nodes and
     %    initialize the forcing function*/
     double dx2 = dx*dx;
-    for (rnd = rnd0; rnd <= rnd1; rnd++) {
+    for (rnd = rnd0; rnd <= rnd1; rnd++) {   // Setup the coefficients of discritized Poisson equation
         rnd->a = 1/dx2;
         rnd->c = 1/dx2;
         rnd->b = -(2/dx2+exp(rnd->fi)+exp(-rnd->fi));
         rnd->f = exp(rnd->fi) - exp(-rnd->fi) - rnd->dop0 - (rnd->fi)*(exp(rnd->fi)+exp(-rnd->fi));
-        //if (rnd - rnd0 == 0) printf("dx2 = %e\ta = %e\tc = %e\tb = %e\tf = %e\n", dx2, rnd->a, rnd->c, rnd->b, rnd->f);
-        //if (rnd - rnd0 == 9653) printf("dx2 = %e\ta = %e\tc = %e\tb = %e\tf = %e\n", dx2, rnd->a, rnd->c, rnd->b, rnd->f);
     }
 
 
     /*%(B) Define the elements of the coefficient matrix and initialize the forcing
     %    function at the ohmic contacts*/
-    rnd0->a = 0.0;
+    rnd0->a = 0.0;               // Setup the Dirichlet boundary condition for the boundary nodes
     rnd0->c = 0.0;
     rnd0->b = 1.0;
     rnd0->f = rnd0->fi;
@@ -173,8 +159,6 @@ int main() {
     rnd1->c = 0.0;
     rnd1->b = 1.0;
     rnd1->f = rnd1->fi;
-    //printf("a= %f\tc= %f\tb= %f\tf= %e\n",rnd0->a,rnd0->c,rnd0->b,rnd0->f);
-    //printf("a= %f\tc= %f\tb= %f\tf= %e\n",rnd1->a,rnd1->c,rnd1->b,rnd1->f);
 
 
     /*%(C)  Start the iterative procedure for the solution of the linearized Poisson
@@ -185,65 +169,51 @@ int main() {
     int flag_conv = 0;		           //% convergence of the Poisson loo
     int k_iter= 0, K = 0;
     while(flag_conv == 0) {
-        k_iter = k_iter + 1;
+        k_iter = k_iter + 1;               // count iteration cycles
         rnd0->alpha = rnd0->b;
-        for (rnd =  rnd0 + 1; rnd <= rnd1; rnd++) {
+        for (rnd =  rnd0 + 1; rnd <= rnd1; rnd++) {     // Set up L and U matrix
             rnd->beta = (rnd->a)/((rnd-1)->alpha);
             rnd->alpha = rnd->b - (rnd->beta)*((rnd-1)->c);
-            //if (k_iter == 1 && rnd - rnd0 ==1) printf("alpha= %e\tbeta =%e\n",rnd->alpha,rnd->beta);
-            //if (k_iter == 1 && rnd - rnd0 ==9653) printf("alpha= %e\tbeta =%e\n",rnd->alpha,rnd->beta);
         }
 
         /*% Solution of Lv = f %*/
         rnd0->v = rnd0->f;
         for (rnd = rnd0 + 1; rnd <= rnd1; rnd++) {
-                rnd->v = rnd->f - (rnd->beta)*((rnd-1)->v);
-                //if (k_iter == 1 && rnd - rnd0 ==1) printf("v= %e\n",rnd->v);
-                //if (k_iter == 1 && rnd - rnd0 ==9653) printf("v= %e\n",rnd->v);
+                rnd->v = rnd->f - (rnd->beta)*((rnd-1)->v);  // Calculate v array using L matrix and fi array from the previous cycle
         }
 
         /*% Solution of U*fi = v %*/
         temp = (rnd1->v)/(rnd1->alpha);
         rnd1->delta = temp - rnd1->fi;
         rnd1->fi = temp;
-        for (rnd = rnd1 -1; rnd >= rnd0; rnd--){
+        for (rnd = rnd1 -1; rnd >= rnd0; rnd--){   // Calculate the new fi using U matrix and v array.
             temp = (rnd->v - (rnd->c)*((rnd + 1)->fi))/(rnd->alpha);
             rnd->delta = temp - rnd->fi;
             rnd->fi = temp;
-            //if (k_iter == 1 && rnd - rnd0 ==0) printf("temp= %e\tdelta[%d]= %e\tfi[i]= %e\n",temp,rnd-rnd0,rnd->delta,rnd-rnd0,rnd->fi);
-            //if (k_iter == 1 && rnd - rnd0 ==9652) printf("temp= %e\tdelta[%d]= %e\tfi[i]= %e\n",temp,rnd-rnd0,rnd->delta,rnd-rnd0,rnd->fi);
         }
         delta_max = 0.0;
-        for (rnd = rnd0; rnd <= rnd1; rnd++) {
+        for (rnd = rnd0; rnd <= rnd1; rnd++) {  // Finding the maximum element difference between new and old fi
             if (rnd->delta > 0.0) xx = rnd->delta;
             else xx = -rnd->delta;
             if (xx > delta_max) {delta_max = xx; K = rnd - rnd0;}
-            //if (rnd - rnd0 == 9653) printf("delta_max = %e\tK = %d\n", delta_max, K);
-            //if (k_iter == 1 && rnd - rnd0 == 4822) printf("delta = %e\txx = %e\tK = %d\n",rnd->delta,xx,rnd-rnd0);
-            //if (k_iter == 1 && rnd - rnd0 == 4824) printf("delta = %e\txx = %e\tK = %d\n",rnd->delta,xx,rnd-rnd0);
-            //if (k_iter == 1 && rnd - rnd0 == 4826) printf("delta = %e\txx = %e\tK = %d\n",rnd->delta,xx,rnd-rnd0);
         }
 
 
-        /*%delta_max=max(abs(delta));
-        % Test convergence and recalculate forcing function and
+        /*% Test convergence and recalculate forcing function and
         % central coefficient b if necessary*/
-        if (delta_max < delta_acc) flag_conv = 1;
+        if (delta_max < delta_acc) flag_conv = 1;   // Check if the maximum difference is less or greater than threshold
         else
-        for (rnd = rnd0 + 1; rnd <= rnd1 -1; rnd++) {
+        for (rnd = rnd0 + 1; rnd <= rnd1 -1; rnd++) {//If difference is greater then the new b and f would be calculated and used in new iter
             rnd->b = -(2/dx2 + exp(rnd->fi) + exp(-rnd->fi));
             rnd->f = exp(rnd->fi) - exp(-rnd->fi) - rnd->dop0 - rnd->fi*(exp(rnd->fi) + exp(-rnd->fi));
-            //if (k_iter == 1 && rnd - rnd0 == 4822) printf("i = %d\tb = %e\tf = %e\n", rnd - rnd0, rnd->b, rnd->f);
-            //if (k_iter == 1 && rnd - rnd0 == 4824) printf("i = %d\tb = %e\tf = %e\n", rnd - rnd0, rnd->b, rnd->f);
-            //if (k_iter == 1 && rnd - rnd0 == 4826) printf("i = %d\tb = %e\tf = %e\n", rnd - rnd0, rnd->b, rnd->f);
         }
     }
-
+// End of Poisson-Boltzmann solver
 
     /*Calculating electrostatic properties of the junction for plotting*/
     rnd0->xx1 = dx*1e4;
     for (rnd = rnd0 + 1; rnd <= rnd1 - 1; rnd++) {
-        rnd->Ec = dEc - Vt*(rnd->fi);
+        rnd->Ec = dEc - Vt*(rnd->fi);// Calculate electric field, charge carrier densities and conduction band profile based on calculated fi
         rnd->ro = -ni*(exp(rnd->fi) - exp(-rnd->fi) - rnd->dop0);
         rnd->el_field1 = -((rnd + 1)->fi - rnd->fi)*Vt/(dx*Ldi);
         rnd->el_field2 = -((rnd + 1)->fi - (rnd - 1)->fi)*Vt/(2*dx*Ldi);
@@ -292,38 +262,11 @@ int main() {
       %%  Prameters for Low field mobility calculation %%*/
     double TL = 300;                    //% Temp in Kelvin
     double N  = Na + Nd;                //% Local (total) impurity concentration
-
-    double MU1N_CAUG   = 55.24;         //% cm2/(V.s)
-    double MU2N_CAUG   = 1429.23;       //% cm2/(V.s)
-    double ALPHAN_CAUG = 0.0;           //% unitless
-    double BETAN_CAUG  = -2.3;          //% unitless
-    double GAMMAN_CAUG = -3.8;          //% unitless
-    double DELTAN_CAUG = 0.73;          //% unitless
-    double NCRITN_CAUG = 1.072E17;   //% cm-3
-
-    double MU1P_CAUG   = 49.7;          //% cm2/(V.s)
-    double MU2P_CAUG   = 479.37;        //% cm2/(V.s)
-    double ALPHAP_CAUG = 0.0;           //% unitless
-    double BETAP_CAUG  = -2.2;          //% unitless
-    double GAMMAP_CAUG = 13.7;          //% unitless
-    double DELTAP_CAUG = 0.70;          //% unitless
-    double NCRITP_CAUG = 1.606E17;   //% cm-3
-    double BETAN = 2.0;
-    double BETAP = 1.0;
-    /*% %     mun0 = ( MU1N_CAUG*((TL/300)^ALPHAN_CAUG) ) ...
-      % %       + (( (MU2N_CAUG*((TL/300)^BETAN_CAUG)) - (MU1N_CAUG*((TL/300)^ALPHAN_CAUG)) ) ...
-      % %            / ( 1 + ((TL/300)^GAMMAN_CAUG) * ((N/NCRITN_CAUG)^DELTAN_CAUG) ))
-      % %
-      % %
-      % %     mup0 = ( MU1P_CAUG*((TL/300)^ALPHAP_CAUG) ) ...
-      % %       + (( (MU2P_CAUG*((TL/300)^BETAP_CAUG)) - (MU1P_CAUG*((TL/300)^ALPHAP_CAUG)) ) ...
-      % %            / ( 1 + ((TL/300)^GAMMAP_CAUG) * ((N/NCRITP_CAUG)^DELTAP_CAUG) ))*/
+    double BETAN = 2.0;                 // Field dependency parameter of electron mobility (unitless)
+    double BETAP = 1.0;                 // Field Dependency parameter of hole mobility (unitless)
 
     double VSATN = (2.4E7) / (1 + 0.8*exp(TL/600));  // Saturation Velocity of Electrons
     double VSATP = VSATN;                               // Saturation Velocity of Holes
-
-    //printf("BETAN = %f\tBETAP = %f\tVSATN = %e\tVSATP = %e\n", BETAN, BETAP, VSATN, VSATP);
-
 
     /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%   2. Start the main Loop to increment the Anode voltage by Vt=KbT/q  %%
@@ -340,18 +283,14 @@ int main() {
     Vpro  **dptrc, *sptrc, *sptrc0;
     IV0 = (Vpro **)calloc(74, sizeof(Vpro *));
     for (IV = IV0; IV < IV0 + 74; IV++) *IV = (Vpro *)calloc(5, sizeof(Vpro));
-    //printf("%d ", (IV0[0] + 0)->Jelec);
 
     for (VA = 0.0, IV = IV0; VA < Vf; VA+=0.33*Vt, IV++) {                //% Start VA increment loop
 
         printf("VA = %f\n",VA);
         vindex = vindex + 1;
         (*IV)->Vplot = VA;
-        //Vplot[vindex] = VA;
-        //printf("total_steps = %d,  n_max = %d,  vindex = %d\n", Total_Steps, n_max, vindex);
 
         rnd0->fi = rnd0->fi + VA;            //% Apply potential to Anode (1st node)
-        //%fi(1)
 
         flag_conv2 = 0;		           //% Convergence of the Poisson loop
         k_itern= 0;
@@ -366,7 +305,6 @@ int main() {
         rnd1->b = 1;
         rnd1->f = rnd1->fi;
 
-        //printf("fi0 = %e\tfi1 = %e\n", rnd0->fi, rnd1->fi);
 
     /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% 3. Start the Poisson equation solver loop to calculate the        %%
@@ -374,7 +312,6 @@ int main() {
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
         while(flag_conv2 == 0) {     //Start Poisson's eqn
             k_itern += 1;
-            //printf("k_itern = %d\t", k_itern);
 
 
         /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -390,7 +327,6 @@ int main() {
         //%% Calculate the Electric Field at each Node
             for (rnd = rnd0 + 1; rnd <= rnd1 -1; rnd++) {
                 rnd->Ef = abs1(rnd->fi - (rnd + 1)->fi)*Vt/(dx*Ldi);
-                //if (rnd - rnd0 < 10) printf("Ef = %e\tfi = %e\tfi+1 = %e\n", rnd->Ef, rnd->fi, (rnd + 1)->fi);
             }
 
             rnd0->Ef = (rnd0 + 1)->Ef;
@@ -426,7 +362,6 @@ int main() {
             rnd0->ap = 0;              //%Co-ef for hole     at Anode
             rnd0->bp = 1;              //%Co-ef for hole     at Anode
             rnd0->cp = 0;              //%Co-ef for hole     at Anode
-            //%fnp(1) = (Ldi*Ldi*dx2/Vt) * ( p(1)*n(1) - 1 ) / ( TAUP0*(n(1) + 1 ) + TAUN0*(p(1) + 1 ) );
             rnd0->fn = rnd0->n;
             rnd0->fp = rnd0->p;
 
@@ -437,11 +372,9 @@ int main() {
             rnd1->ap = 0;          //%Co-ef for hole     at Cathode
             rnd1->bp = 1;          //%Co-ef for hole     at Cathode
             rnd1->cp = 0;          //%Co-ef for hole     at Cathode
-            //%fnp(n_max) = (Ldi*Ldi*dx2/Vt) * ( p(n_max)*n(n_max) - 1 ) / ( TAUP0*(n(n_max) + 1) + TAUN0*(p(n_max) + 1) );
             rnd1->fn = rnd1->n;
             rnd1->fp = rnd1->p;
 
-            //printf("n0 = %e\tp0 = %e\tn1 = %e\tp1 = %e\n", rnd0->n, rnd0->p, rnd1->n, rnd1->p);
 
 
         //%(B) Define the elements of the coefficient matrix for the internal nodes and
@@ -451,11 +384,10 @@ int main() {
 
 
             for (rnd = rnd0 + 1; rnd <= rnd1 - 1; rnd++) {
-                munim1by2 = ((rnd - 1)->mun + rnd->mun)/2;
-                munip1by2 = (rnd->mun + (rnd + 1)->mun)/2;
-                mupim1by2 = ((rnd - 1)->mup + rnd->mup)/2;
-                mupip1by2 = (rnd->mup + (rnd + 1)->mup)/2;
-                //if (rnd1 - rnd < 10) printf("%e\t%e\t%e\t%e\n",munim1by2,munip1by2,mupim1by2,mupip1by2);
+                munim1by2 = ((rnd - 1)->mun + rnd->mun)/2;      // Electron mobility between node (i-1) and i; D_(i-1/2)^n
+                munip1by2 = (rnd->mun + (rnd + 1)->mun)/2;      // Electron mobility between node (i) and (i+1); D_(i+1/2)^n
+                mupim1by2 = ((rnd - 1)->mup + rnd->mup)/2;      // Hole mobility between node (i-1) and i; D_(i-1/2)^n
+                mupip1by2 = (rnd->mup + (rnd + 1)->mup)/2;      // Hole mobility between node (i) and (i+1); D_(i+1/2)^n
 
             //%% Co-efficients for HOLE Continuity eqn
                 rnd->cp = mupip1by2 * BER(rnd->fi - (rnd + 1)->fi);
@@ -466,24 +398,19 @@ int main() {
                 rnd->an = munim1by2 * BER((rnd - 1)->fi - rnd->fi);
                 rnd->bn = -( munim1by2 * BER(rnd->fi - (rnd - 1)->fi) + munip1by2 * BER(rnd->fi - (rnd + 1)->fi));
             //%% Forcing Function for ELECTRON and HOLE Continuity eqns
-                rnd->fn = (Ldi*Ldi*dx2/Vt) * ( (rnd->p)*(rnd->n) - 1 ) / ( TAUP0*(rnd->n + 1) + TAUN0*(rnd->p + 1));
-                rnd->fp = (Ldi*Ldi*dx2/Vt) * ( (rnd->p)*(rnd->n) - 1 ) / ( TAUP0*(rnd->n + 1) + TAUN0*(rnd->p + 1));
-                //if (rnd1 - rnd < 200) printf("i = %d\tfi = %e\tBER = %e\n",rnd1-rnd,rnd->fi,BER(rnd->fi - (rnd + 1)->fi));
+                rnd->fn = (Ldi*Ldi*dx2/Vt) * ( (rnd->p)*(rnd->n) - 1 ) / ( TAUP0*(rnd->n + 1) + TAUN0*(rnd->p + 1)); // Electron Recom
+                rnd->fp = (Ldi*Ldi*dx2/Vt) * ( (rnd->p)*(rnd->n) - 1 ) / ( TAUP0*(rnd->n + 1) + TAUN0*(rnd->p + 1)); // Hole Recom
             }
 
 
-        /*%(C)  Start the iterative procedure for the solution of the linearized Continuity
+        /*(C)  Start the iterative procedure for the solution of the linearized Continuity
         %     equation for "ELECTRONS" using LU decomposition method:*/
 
 
             rnd0->alphan = rnd0->bn;
-            //printf("alphan0 = %e\n", rnd0->alphan);
             for (rnd = rnd0 + 1; rnd <= rnd1; rnd++) {
                 rnd->betan = rnd->an/(rnd - 1)->alphan;
                 rnd->alphan = rnd->bn - rnd->betan*(rnd - 1)->cn;
-                //if (rnd1 - rnd < 10)
-                    //printf("i = %d\tbetan(i) = %e\talphan(i-1) = %e\talphan(i) = %e\n", rnd1-rnd, rnd->betan, (rnd-1)->alphan, rnd->alphan);
-                    //printf("i = %d\tan(i) = %e\tbn(i) = %e\tcn(i-1) = %e\n",rnd1-rnd,rnd->an,rnd->bn,(rnd-1)->cn);
             }
 
         //% Solution of Lv = f %
@@ -491,19 +418,14 @@ int main() {
             rnd0->vn = rnd0->fn;
             for (rnd = rnd0 + 1; rnd <= rnd1; rnd++) {
                 rnd->vn = rnd->fn - rnd->betan*(rnd - 1)->vn;
-                //if (rnd1 - rnd < 10) printf("i = %d\tfn = %e\tbetan = %e\n", rnd1-rnd, rnd->fn, rnd->betan);
             }
 
         //% Solution of U*fi = v %
             tempn = rnd1->vn/rnd1->alphan;
-            //printf("vn1 = %e\talphan1 = %e\n", rnd1->vn, rnd1->alphan);
-            //%deltan(n_max) = tempn - n(n_max);
             rnd1->n=tempn;
             for (rnd = rnd1 - 1; rnd >= rnd0; rnd--) {       //%delta%
                 tempn = (rnd->vn - rnd->cn*(rnd + 1)->n)/rnd->alphan;
-              //%  deltan(i) = tempn - n(i);
                 rnd->n = tempn;
-                //if (rnd1-1-rnd < 10) printf("i = %d\tn = %e\n",rnd1-1-rnd,rnd->n);
             }
 
        //%%%%%%%%%%%%%%%%%%%%%%% END of ELECTRON Continuty Solver %%%%%%%%%%%
@@ -516,7 +438,6 @@ int main() {
             for (rnd = rnd0 + 1; rnd <= rnd1; rnd++) {
                 rnd->betap = rnd->ap/(rnd-1)->alphap;
                 rnd->alphap = rnd->bp - rnd->betap*(rnd - 1)->cp;
-                //if (rnd - rnd0 < 10) printf("betap = %e\talphap = %e\n", rnd->betap, rnd->alphap);
             }
 
         //% Solution of Lv = f %
@@ -524,19 +445,15 @@ int main() {
             rnd0->vp = rnd0->fp;
             for (rnd = rnd0 + 1; rnd <= rnd1; rnd++) {
                 rnd->vp = rnd->fp - rnd->betap*(rnd - 1)->vp;
-                //if (rnd - rnd0 < 10) printf("fp = %e\tbetap = %e\n", rnd->fp, rnd->betap);
             }
 
         //% Solution of U*fi = v %
 
             tempp = rnd1->vp/rnd1->alphap;
-            //%deltap(n_max) = tempp - p(n_max);
             rnd1->p=tempp;
             for (rnd = rnd1 - 1; rnd >= rnd0; rnd--) {       //%delta%
                 tempp = (rnd->vp - rnd->cp*(rnd + 1)->p)/rnd->alphap;
-             //%   deltap(i) = tempp - p(i);
                 rnd->p = tempp;
-                //if (rnd1 - rnd < 10) printf("vp = %e\tcp = %e\talphap = %e\n", rnd->vp, rnd->cp, rnd->alpha);
             }
 
        //%%%%%%%%%%%%%%%%%%%%%%% END of HOLE Continuty Solver %%%%%%%%%%%
@@ -552,7 +469,6 @@ int main() {
         for (rnd = rnd0 + 1; rnd <= rnd1 -1; rnd++) {
             rnd->b = -(2/dx2 + rnd->n + rnd->p);
             rnd->f = rnd->n - rnd->p - rnd->dop0 - (rnd->fi*(rnd->n + rnd->p));
-            //if (rnd - rnd0 < 10) printf("n = %e\tp = %e\tfi = %e\n", rnd->n, rnd->p, rnd->fi);
         }
 
             /*% Solve for Updated potential given the new value of Forcing
@@ -569,8 +485,6 @@ int main() {
         rnd0->v = rnd0->f;
         for (rnd = rnd0 + 1; rnd <= rnd1; rnd++) {
             rnd->v = rnd->f - rnd->beta*(rnd - 1)->v;
-            //if (rnd - rnd0 < 10)
-                //printf("f = %e\tbeta = %e\n", rnd->f, rnd->beta);
         }
 
         //% Solution of U*fi = v %
@@ -581,14 +495,11 @@ int main() {
         for (rnd = rnd1 - 1; rnd >= rnd0; rnd--) {      //%delta%
             temp = (rnd->v - rnd->c*(rnd + 1)->fi)/rnd->alpha;
             rnd->delta = temp - rnd->fi;
-            //if (rnd1 - 1 - rnd < 10)
-                //printf("i = %d\tv = %e\tc = %e\talpha = %e\tfi = %e\n", rnd1 - 1 - rnd, rnd->v, rnd->c, rnd->alpha, (rnd+1)->fi);
             rnd->fi = temp;
         }
 
         delta_max = 0.0;
         for (rnd = rnd0; rnd <= rnd1; rnd++) {
-            //if (rnd - rnd0 < 10) printf("delta(%d) = %e\n", rnd - rnd0 +1, (rnd->delta));
             xx = abs1(rnd->delta);
             if(xx > delta_max) delta_max=xx;
         }
@@ -603,15 +514,15 @@ int main() {
 
         ofp = fopen("Current.txt", "a");
         for (rnd = rnd0 + 1, Jnp = Jnp0 + 1; rnd <= rnd1 -1; rnd++, Jnp++) {
-            Jnp0->Jnim1by2 = (q*(rnd->mun)*Vt/(dx*Ldi)) * ni*( (rnd->n)*BER(rnd->fi - (rnd - 1)->fi) - ((rnd - 1)->n)*BER((rnd - 1)->fi - rnd->fi) );
-            Jnp->Jnim1by2 = (q*(rnd->mun)*Vt/(dx*Ldi)) * ni*( ((rnd + 1)->n)*BER((rnd + 1)->fi - rnd->fi) - (rnd->n)*BER(rnd->fi - (rnd + 1)->fi) );
-            Jnp->Jelec = (Jnp0->Jnim1by2 + Jnp->Jnim1by2)/2;
+            Jnp0->Jnim1by2 = (q*(rnd->mun)*Vt/(dx*Ldi)) * ni*( (rnd->n)*BER(rnd->fi - (rnd - 1)->fi) - ((rnd - 1)->n)*BER((rnd - 1)->fi - rnd->fi) );   // Electron current from node (i-1) to (i) node at each applied voltage
+            Jnp->Jnim1by2 = (q*(rnd->mun)*Vt/(dx*Ldi)) * ni*( ((rnd + 1)->n)*BER((rnd + 1)->fi - rnd->fi) - (rnd->n)*BER(rnd->fi - (rnd + 1)->fi) );       // Electron current from node (i) to (i+1) node at each applied voltage
+            Jnp->Jelec = (Jnp0->Jnim1by2 + Jnp->Jnim1by2)/2;   // Electron current density on each node for each applied voltage
 
-            Jnp->Jpim1by2 = (q*(rnd->mup)*Vt/(dx*Ldi)) * ni*( (rnd->p)*BER((rnd - 1)->fi - rnd->fi) - ((rnd - 1)->p)*BER(rnd->fi - (rnd - 1)->fi) );
-            Jnp->Jpip1by2 = (q*(rnd->mup)*Vt/(dx*Ldi)) * ni*( ((rnd + 1)->p)*BER(rnd->fi - (rnd + 1)->fi) - (rnd->p)*BER((rnd + 1)->fi - rnd->fi) );
-            Jnp->Jhole = (Jnp->Jpim1by2 + Jnp->Jpip1by2)/2;
+            Jnp->Jpim1by2 = (q*(rnd->mup)*Vt/(dx*Ldi)) * ni*( (rnd->p)*BER((rnd - 1)->fi - rnd->fi) - ((rnd - 1)->p)*BER(rnd->fi - (rnd - 1)->fi) );       // Hole current from node (i-1) to (i) node at each applied voltage
+            Jnp->Jpip1by2 = (q*(rnd->mup)*Vt/(dx*Ldi)) * ni*( ((rnd + 1)->p)*BER(rnd->fi - (rnd + 1)->fi) - (rnd->p)*BER((rnd + 1)->fi - rnd->fi) );       // Hole current from node (i) to (i+1) node at each applied voltage
+            Jnp->Jhole = (Jnp->Jpim1by2 + Jnp->Jpip1by2)/2;  // Hole current density on each node for each applied voltage
 
-            Jnp->Jtotal = Jnp->Jelec + Jnp->Jhole;
+            Jnp->Jtotal = Jnp->Jelec + Jnp->Jhole;  // Total current density on each node for each applied voltage
 
             if (rnd - rnd0 == 1) {
                 (*IV + 1)->Jelec = (*IV + 2)->Jelec = Jnp->Jelec;
