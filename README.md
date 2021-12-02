@@ -111,9 +111,9 @@ The discretization of the DD current equations in a coservative form (under cont
 
 where V<sub>i</sub> is the potential in the ith node. Since for n(V<sub>i</sub>) subject to the boundary conditions is n<sub>i</sub>, therefore the solution of this first order differential equation leads to:
 
-![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20J_%7Bi&plus;1/2%7D%20%3D%20%5Cfrac%7BeD_%7Bi&plus;1/2%7D%7D%7Ba_i%7Dn_%7Bi&plus;1%7DB%28%5Cfrac%7BV_%7Bi&plus;1%7D-V_i%7D%7BV_t%7D%29&plus;n_iB%28%5Cfrac%7BV_%7Bi%7D-V_%7Bi&plus;1%7D%7D%7BV_t%7D%29%20%5C%5C%5C%5C%20B%28x%29%20%3D%20%5Cfrac%7Bx%7D%7Be%5Ex&plus;1%7D%20%5C%3B%5C%3B%5C%3B%5C%3B%5C%3B%5C%3B%5C%3B%5C%3B%20Bernouli%5C%3BFunction)
+![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/Continuity_Equ.png)
 
-The veriety of method for solving Poisson equation include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
+where the dependency of n and p upon the potential is buried under Bernoulli function. The veriety of method for solving Poisson equation include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LU_M.png)
 
