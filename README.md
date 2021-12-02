@@ -113,6 +113,8 @@ where V<sub>i</sub> is the potential in the ith node. Since for n(V<sub>i</sub>)
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/Continuity_Equ.png)
 
+![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20B%28x%29%3D%5Cfrac%7Bx%7D%7Be%5Ex&plus;1%7D%20%5C%3B%5C%3B%5C%3B%5C%3BBernoulli%5C%3BFunction)
+
 where the dependency of n and p upon the potential is buried under Bernoulli function. The veriety of method for solving Poisson equation include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LU_M.png)
