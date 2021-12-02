@@ -1,6 +1,10 @@
 import numpy as np
 import math
+from time import time
+import datetime
 
+start = time()
+today = datetime.date.today()
 def abs(x):
     if x >= 0:
         return x
@@ -230,24 +234,8 @@ f1.close()
 TL = 300                    # Temp in Kelvin
 N  = Na + Nd                # Local (total) impurity concentration
 
-MU1N_CAUG   = 55.24         # cm2/(V.s)
-MU2N_CAUG   = 1429.23       # cm2/(V.s)
-ALPHAN_CAUG = 0.0           # unitless
-BETAN_CAUG  = -2.3          # unitless
-GAMMAN_CAUG = -3.8          # unitless
-DELTAN_CAUG = 0.73          # unitless
-NCRITN_CAUG = 1.072E17      # cm-3
-
-MU1P_CAUG   = 49.7          # cm2/(V.s)
-MU2P_CAUG   = 479.37        # cm2/(V.s)
-ALPHAP_CAUG = 0.0           # unitless
-BETAP_CAUG  = -2.2          # unitless
-GAMMAP_CAUG = 13.7          # unitless
-DELTAP_CAUG = 0.70          # unitless
-NCRITP_CAUG = 1.606E17      # cm-3
-BETAN = 2.0
-BETAP = 1.0
-
+BETAN = 2.0                 # Field dependency parameter of electron mobility (unitless)
+BETAP = 1.0                 # Field Dependency parameter of hole mobility (unitless)
 VSATN = (2.4E7) / (1 + 0.8*math.exp(TL/600))  # Saturation Velocity of Electrons
 VSATP = VSATN                                 # Saturation Velocity of Holes
 
@@ -258,40 +246,39 @@ VSATP = VSATN                                 # Saturation Velocity of Holes
 ##   2. Start the main Loop to increment the Anode voltage by Vt=KbT/q  ## 
 ##      till it reaches 0.625V.                                         ##
 ##########################################################################
-vindex=0
-Vplot = [0]*74
-Ef = [0]*n_max
-Ev = [0]*n_max
-Ei = [0]*n_max
-Efn = [0]*n_max
-Efp = [0]*n_max
-mup = [0]*n_max
-mun = [0]*n_max
-an = [0]*n_max
-bn = [0]*n_max
-cn = [0]*n_max
-fn = [0]*n_max
-ap = [0]*n_max
-bp = [0]*n_max
-cp = [0]*n_max
-fp = [0]*n_max
-alphan = [0]*n_max
-betan = [0]*n_max
-vn = [0]*n_max
-alphap = [0]*n_max
-betap = [0]*n_max
-vp = [0]*n_max
-Jnim1by2 = [[0]*n_max]*74
-Jnip1by2 = [[0]*n_max]*74
-Jelec = [[0]*n_max]*74
-Jpim1by2 = [[0]*n_max]*74
-Jpip1by2 = [[0]*n_max]*74
-Jhole = [[0]*n_max]*74
-Jtotal = [[0]*n_max]*74
+Vplot = [0]*74     # All applied voltages
+Ef = [0]*n_max     # Fermi level
+Ev = [0]*n_max     # Valence band level
+Ei = [0]*n_max     # Intrinsic level
+Efn = [0]*n_max    # Quasi fermi level for electron
+Efp = [0]*n_max    # Quasi fermi level for hole
+mup = [0]*n_max    # Hole mobility on each node
+mun = [0]*n_max    # Electron mobility on each node.
+an = [0]*n_max     # Coefficients of electron continuity equation
+bn = [0]*n_max     # Coefficients of electron continuity equation
+cn = [0]*n_max     # Coefficients of electron continuity equation
+fn = [0]*n_max     # Coefficients of electron continuity equation
+ap = [0]*n_max     # Coefficients of hole continuity equation
+bp = [0]*n_max     # Coefficients of hole continuity equation
+cp = [0]*n_max     # Coefficients of hole continuity equation
+fp = [0]*n_max     # Coefficients of hole continuity equation
+alphan = [0]*n_max   # Coefficients of LU decomposition of electron continuity equation
+betan = [0]*n_max    # Coefficients of LU decomposition of electron continuity equation
+vn = [0]*n_max       # Coefficients of LU decomposition of electron continuity equation
+alphap = [0]*n_max   # Coefficients of LU decomposition of hole continuity equation
+betap = [0]*n_max    # Coefficients of LU decomposition of hole continuity equation
+vp = [0]*n_max       # Coefficients of LU decomposition of hole continuity equation
+Jnim1by2 = [[0]*n_max]*74    #Electron current from node (i-1) to (i) node at each applied voltage
+Jnip1by2 = [[0]*n_max]*74    #Electron current from node (i) to (i+1) node at each applied voltage
+Jpim1by2 = [[0]*n_max]*74    #Hole current from node (i-1) to (i) node at each applied voltage
+Jpip1by2 = [[0]*n_max]*74    #Hole current from node (i) to (i+1) node at each applied voltage
+Jelec = [[0]*n_max]*74       # Electron current density on each node for each applied voltage
+Jhole = [[0]*n_max]*74       # Hole current density on each node for each applied voltage
+Jtotal = [[0]*n_max]*74      # Total current density on each node for each applied voltage
 
 for iV in range(74):                # Start VA increment loop
 
-    VA = iV*0.33*Vt
+    VA = iV*0.33*Vt                 
     Each_Step   = 0.33*Vt 
     Total_Steps = math.ceil(0.625/(0.33*Vt))
     Vplot[iV] = VA
@@ -331,7 +318,7 @@ for iV in range(74):                # Start VA increment loop
         ##       at each node point of the PN diode.                         ##
         #######################################################################
                 
-### To test with Constant Mobility without field dependancy.
+        ### To test with Constant Mobility without field dependancy.
         ## Calculate the Electric Field at each Node
         for i in range(1,n_max-1):
             Ef[i] = abs(fi[i] - fi[i+1])*Vt/(dx*Ldi)
@@ -384,13 +371,13 @@ for iV in range(74):                # Start VA increment loop
         #(B) Define the elements of the coefficient matrix for the internal nodes and
         #    initialize the forcing function
         for i in range(1,n_max-1):
-            munim1by2 = (mun[i-1]+mun[i])/2         
-            munip1by2 = (mun[i]+mun[i+1])/2         
-            mupim1by2 = (mup[i-1]+mup[i])/2         
-            mupip1by2 = (mup[i]+mup[i+1])/2
+            munim1by2 = (mun[i-1]+mun[i])/2       # Electron mobility between node (i-1) and i; D_(i-1/2)^n        
+            munip1by2 = (mun[i]+mun[i+1])/2       # Electron mobility between node (i+1) and i; D_(i+1/2)^n
+            mupim1by2 = (mup[i-1]+mup[i])/2       # Hole mobility between node (i-1) and i; D_(i-1/2)^n v         
+            mupip1by2 = (mup[i]+mup[i+1])/2       # Hole mobility between node (i+1) and i; D_(i+1/2)^n
             
             ## Co-efficients for HOLE Continuity eqn
-            cp[i] = mupip1by2 * BER(fi[i] - fi[i+1])
+            cp[i] = mupip1by2 * BER(fi[i] - fi[i+1])    
             ap[i] = mupim1by2 * BER(fi[i] - fi[i-1])
             bp[i] = -( mupim1by2 * BER(fi[i-1] - fi[i]) + mupip1by2 * BER(fi[i+1] - fi[i]))
             ## Co-efficients for ELECTRON Continuity eqn
@@ -399,8 +386,8 @@ for iV in range(74):                # Start VA increment loop
             bn[i] = -( munim1by2 * BER(fi[i] - fi[i-1]) + munip1by2 * BER(fi[i] - fi[i+1]))
 
             ## Forcing Function for ELECTRON and HOLE Continuity eqns
-            fn[i] = (Ldi*Ldi*dx2/Vt) * ( p[i]*n[i] - 1 ) / ( TAUP0*(n[i] + 1) + TAUN0*(p[i]+1))
-            fp[i] = (Ldi*Ldi*dx2/Vt) * ( p[i]*n[i] - 1 ) / ( TAUP0*(n[i] + 1) + TAUN0*(p[i]+1))
+            fn[i] = (Ldi*Ldi*dx2/Vt) * ( p[i]*n[i] - 1 ) / ( TAUP0*(n[i] + 1) + TAUN0*(p[i]+1)) # Electron Recom
+            fp[i] = (Ldi*Ldi*dx2/Vt) * ( p[i]*n[i] - 1 ) / ( TAUP0*(n[i] + 1) + TAUN0*(p[i]+1)) # Hole Recom
             
         #(C)  Start the iterative procedure for the solution of the linearized Continuity
         
@@ -417,7 +404,7 @@ for iV in range(74):                # Start VA increment loop
             vn[i] = fn[i] - betan[i]*vn[i-1]
 
         # Solution of U*fi = v %
-        tempn = vn[n_max - 1]/alphan[n_max - 1];    
+        tempn = vn[n_max - 1]/alphan[n_max - 1]    
         n[n_max - 1]=tempn
         for i in range(n_max-2, -1, -1):            
             tempn = (vn[i]-cn[i]*n[i+1])/alphan[i]
@@ -595,3 +582,5 @@ f1.write("x [um]\tTotal Current Density [Amp/cm^2]\n")
 for i in range(n_max):
     f1.write(str(xx1[i])+'\t'+str(Jtotal[73][i])+'\n')
 f1.close()
+print ('Runtime : '+str(start - time())+'s')
+print("--- Date = %s --- Runtime = %s seconds ---" % (today,(time() - start)))
