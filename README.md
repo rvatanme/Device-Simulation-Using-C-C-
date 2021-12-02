@@ -109,7 +109,7 @@ The discretization of the DD current equations in a coservative form (under cont
 
 ![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20J_%7Bi&plus;1/2%7D%20%3D%20-en%5Cmu%20_%7Bi&plus;1/2%7D%5Cfrac%7BV_%7Bi&plus;1%7D-V_i%7D%7Ba_i%7D&plus;eD_%7Bi&plus;1/2%7D%5Cfrac%7B%5Cpartial%20n%7D%7B%5Cpartial%20x%7D%5C%5C%5C%5C%20%3D-en%5Cmu%20_%7Bi&plus;1/2%7D%5Cfrac%7BV_%7Bi&plus;1%7D-V_i%7D%7Ba_i%7D&plus;eD_%7Bi&plus;1/2%7D%5Cfrac%7B%5Cpartial%20n%7D%7B%5Cpartial%20V%7D%5Cfrac%7B%5Cpartial%20V%7D%7B%5Cpartial%20x%7D)
 
-where V<sub>i</sub> is the potential in the ith node. Since for n(V<sub>i</sub>) subject to the boundary conditions is n<sub>i</sub>, therefore the solution of this first order differential equation leads to:
+where V<sub>i</sub> is the potential in the ith node. Since for n(V<sub>i</sub>) subject to the boundary conditions is n<sub>i</sub>, therefore the solution of this first order differential equation leads to the following discretized equation (so called Sharfetter-Gummel Discretized Continuity Equations):
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/Continuity_Equ.png)
 
