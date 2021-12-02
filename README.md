@@ -119,7 +119,7 @@ where the dependency of n and p upon the potential is buried under Bernoulli fun
 
 ![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20J_%7Bi&plus;1/2%7D%20%3D%20%5Cfrac%7BeD%20_%7Bi&plus;1/2%7D%7D%7Ba_i%7D%5Bn_%7Bi&plus;1%7DB%28%5Cfrac%7BV_%7Bi&plus;1%7D-V_i%7D%7BV_t%7D%29-n_iB%28%5Cfrac%7BV_i-V_%7Bi&plus;1%7D%7D%7BV_t%7D%29%5D)
 
-The veriety of method for solving Poisson equation include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
+The veriety of method for solving former obtained finite element equations include: (1) Direct methods a: Guassian elemination b: LU decomposition method (2) Iterative method a: mesh relaxation methods b: Matrix methods. Here in the code, the LU decomposition method is used in order to solve Poisson-Boltzmann equation. For a given tridiagonal matrix Au=f (where A and f is known and the goal is finding u), A can be decomposed to L and U as follows: 
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/LU_M.png)
 
@@ -133,6 +133,6 @@ The solution then would be as follows:
 
 ![](https://github.com/rvatanme/Device-Simulation-Using-C-C-/blob/main/Uu.png)
 
-At the begining of Poisson-Boltzmann equation, an initial f is guesses. Then u is calculated using LU decomposition and using the new u through Boltzman equation new f would be calculated. The second LU decomposition is employed to calculate the new u. This iteration would be continued until that the new u is close to the old new. 
+At the begining of solving these equations, an initial f is guesses. Then u is calculated using LU decomposition and using the new u, the new f would be calculated. The second LU decomposition is employed to calculate the new u. This iteration would be continued until that the new u is close to the old u within desire thereshold. 
 
 The two popular methods for solving the discretized equations are the Gummel's iteration method and the Newton's method. It is common practice to perform the actual calculation using normalized units to make the algorithms more efficient, and in cases to avoid numerical overflow and underflow. It is advisable to input the data in M.K.S. or practical units (the use of centimeters is for instance very common in semiconductor practice, instead of meters) and then provide a conversion block before and after the computation blocks to normalize and denormalize the variables.
