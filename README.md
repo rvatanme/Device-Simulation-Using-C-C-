@@ -143,9 +143,19 @@ The puprpose of this simulation is to predict the current flowing trhough a 1d p
  
 1) Solve only Poisson's equation at equilibrium (no applied bias).
 
-   a) Choose an initial guess for the potential.
+   a) Choose an initial guess for the potential at each grid point for example φ<sub>i</sub> = (kT/q)ln(Na/n<sub>0</sub>) for P side and
+   φ<sub>i</sub> = -(kT/q)ln(Nd/n<sub>0</sub>) for N side where φ<sub>i</sub> and n<sub>0</sub> is the potential in the ith grid point and
+   intrinsic carrier concentration, respectively.
    
-   b) Write the potential at the next iteration step as V<sub>new</sub> = V<sub>old</sub> + δV
+   b) Write the potential at the next iteration step (n+1) as V<sup>n+1</sub> = V<sup>n</sub> + δV. Using the following discritized Poisson's
+   equations derived above,  
+   
+   ![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20%5Cfrac%7B1%7D%7Bdx%5E2%7D%5Cphi_%7Bi&plus;1%7D%5E%7Bn&plus;1%7D&plus;%28%5Cfrac%7B2%7D%7Bdx%5E2%7D&plus;n_i&plus;p_i%29%5Cphi_i%5E%7Bn&plus;1%7D&plus;%5Cfrac%7B1%7D%7Bdx%5E2%7D%5Cphi_%7Bi-1%7D%5E%7Bn&plus;1%7D%3D%20%5C%5C%20%5C%5C%20-%28p_i-n_i&plus;N_%7Bdi%7D-N_%7Bai%7D%29-%28p_i&plus;n_i%29%5Cphi_i%5En)
+   
+
+![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20n_i%20%3D%20n_0e%5E%7B-%5Cfrac%7Bq%5Cphi_i%7D%7BkT%7D%7D%2C%20%5C%3B%5C%3B%5C%3B%5C%3B%20p_i%20%3D%20p_0e%5E%7B-%5Cfrac%7Bq%5Cphi_i%7D%7BkT%7D%7D)
+
+the new potential can be obtained using LU decomposition method.
 
 
 ## References
