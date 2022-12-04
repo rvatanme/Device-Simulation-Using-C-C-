@@ -155,7 +155,7 @@ The puprpose of this simulation is to predict the current flowing trhough a 1d p
 
    ![](https://latex.codecogs.com/svg.latex?%5Cdpi%7B300%7D%20%5CLARGE%20n_i%20%3D%20n_0e%5E%7B-%5Cfrac%7Bq%5Cphi_i%7D%7BkT%7D%7D%2C%20%5C%3B%5C%3B%5C%3B%5C%3B%20p_i%20%3D%20p_0e%5E%7B-%5Cfrac%7Bq%5Cphi_i%7D%7BkT%7D%7D)
 
-   The two above equatons result in to several coupled of linear algebraic equations in the form of Au = f where A, u and f are coefficints
+   The two above equations result in to several coupled of linear algebraic equations in the form of Au = f where A, u and f are coefficints
    matrix, unknow φ<sup>n+1</sup>, and known quantities obtained from φ<sup>n</sup>. Since A is a tridiagonal matrix that can be solved
    using LU decomposision explained above.
 
