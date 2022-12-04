@@ -138,5 +138,13 @@ Since, in DD model algorithm, there are several coupling linear algebraic equati
 
 Gummel's  method  solves  the  coupled  set  of  semiconductor  equations  together  with  the  Poisson equation via a decoupled procedure. If we choose the quasi-Fermi level formulation, we solve first a nonlinear Poisson's equation. The potential obtained from this solution is substituted into  the  continuity  equations,  which  are  now  linear,  and  are  solved  directly  to  conclude  the  iteration  step.  The  result  in  terms  of  quasi-Fermi  levels  is  then  substituted  back  into  Poisson's  equation   and   the   process   repeated   until   convergence   is   reached.   In   order   to   check   for   convergence, one can calculate the residuals obtained by positioning all the terms to the left hand side  of  the  equations  and  substituting  the  variables  with  the  iteration  values.  For  the  exact  solution  the  residuals  should  be  zero.  Convergence  is  assumed  when  the  residuals  are  smaller  than a set tolerance. The rate of convergence of the Gummel method is faster when there is little coupling between the different equations. The computational cost of one Gummel iteration is one matrix solution for each carrier type plus one iterative solution for the linearization of Poisson's equation.  Note  that  in  conditions  of  equilibrium  (zero  bias)  only  the  solution  of  Poisson's  equation  is  necessary,  since  the  equilibrium  Fermi  level  is  constant  and  coincides  with  both  quasi-Fermi levels.
 
+## Simulation Procedure in Detailes
+The puprpose of this simulation is to predict the current flowing trhough a 1d pn diode under an applied bias. This is achieved by approximating the operation of the device onto a one dimensional grid, consisting of a number of grid points called nodes. By applying the set of finit element differential equations (derived above from DD, Poisson's  and continuity equations) onto this grid one can simulate the transport of carriers through the mentioned structure. The detailed numerical procedure that must be impelemented is as following:
+ 
+1) Solve only Poisson's equation at equilibrium (no applied bias).
+   a) Choose an initial guess for the potential.
+   b) Write the potential at the next iteration step as 
+
+
 ## References
 1) Drift-Diffusion Model: Solution Details, Prof. Dragica Vasileska, Arizona State University (https://nanohub.org/resources/1565/download/ddmodel_solution_details_word.pdf)
