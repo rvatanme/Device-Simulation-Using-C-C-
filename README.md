@@ -142,6 +142,7 @@ Gummel's  method  solves  the  coupled  set  of  semiconductor  equations  toget
 The puprpose of this simulation is to predict the current flowing trhough a 1d pn diode under an applied bias. This is achieved by approximating the operation of the device onto a one dimensional grid, consisting of a number of grid points called nodes. By applying the set of finit element differential equations (derived above from DD, Poisson's  and continuity equations) onto this grid one can simulate the transport of carriers through the mentioned structure. The detailed numerical procedure that must be impelemented is as following:
  
 1) Solve only Poisson's equation at equilibrium (no applied bias).
+
    a) Choose an initial guess for the potential.
    b) Write the potential at the next iteration step as 
 
