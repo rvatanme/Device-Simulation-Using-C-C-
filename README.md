@@ -145,7 +145,7 @@ The puprpose of this simulation is to predict the current flowing trhough a 1d p
 
    a) Choose an initial guess for the potential.
    
-   b) Write the potential at the next iteration step as 
+   b) Write the potential at the next iteration step as V<sub>new</sub> = V<sub>old</sub> + δV
 
 
 ## References
