@@ -144,6 +144,7 @@ The puprpose of this simulation is to predict the current flowing trhough a 1d p
 1) Solve only Poisson's equation at equilibrium (no applied bias).
 
    a) Choose an initial guess for the potential.
+   
    b) Write the potential at the next iteration step as 
 
 
